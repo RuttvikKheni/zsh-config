@@ -32,15 +32,17 @@ commandexists() {
 
 package_version() {
   if ([[ -f package.json ]] && commandexists npm) || ([[ -d .git ]] && commandexists git); then
-    if commandexists node; then
+    if [[ -f package.json ]] && commandexists node; then
       local version="$(command node --version)"
       local npmversion="$(command npm --version)"
+      local nodeString="node ⬢%{$version%} npm ✨ %{$npmversion%}"
 	  fi
-    if commandexists git status; then
+    if [[ -d .git ]] && commandexists git status; then
       local gitusername="$(command git config user.name)"
       local gitusermail="$(command git config user.email)"
+      local gitString="%{$RED%}git 👥 %{$gitusername%} 📩 %{$gitusermail%}"
 	  fi
-    echo "node ⬢ %{$version%} ✨ npm %{$npmversion%} %{$RED%}git 👤 %{$gitusername%} 📩 %{$gitusermail%}"
+    echo "%{$nodeString%} %{$gitString%} "
   fi
 }
 
@@ -74,3 +76,4 @@ ZSH_THEME_VIRTUAL_ENV_PROMPT_PREFIX="%{$fg[green]%}‹"
 ZSH_THEME_VIRTUAL_ENV_PROMPT_SUFFIX="› %{$reset_color%}"
 ZSH_THEME_VIRTUALENV_PREFIX=$ZSH_THEME_VIRTUAL_ENV_PROMPT_PREFIX
 ZSH_THEME_VIRTUALENV_SUFFIX=$ZSH_THEME_VIRTUAL_ENV_PROMPT_SUFFIX
+[[ -s $HOME/.nvm/nvm.sh ]] && . $HOME/.nvm/nvm.sh  # This loads NV 

@@ -1,6 +1,7 @@
 # Color shortcuts
 RED=$fg[red]
 YELLOW=$fg[yellow]
+RED=$fg[red]
 GREEN=$fg[green]
 WHITE=$fg[white]
 BLUE=$fg[blue]
@@ -30,12 +31,16 @@ commandexists() {
 
 
 package_version() {
-  if [[ -f package.json ]] && commandexists npm; then
+  if ([[ -f package.json ]] && commandexists npm) || ([[ -d .git ]] && commandexists git); then
     if commandexists node; then
       local version="$(command node --version)"
       local npmversion="$(command npm --version)"
-      echo "via ⬢ %{$version%} ✨ npm %{$npmversion%}"
 	  fi
+    if commandexists git status; then
+      local gitusername="$(command git config user.name)"
+      local gitusermail="$(command git config user.email)"
+	  fi
+    echo "node ⬢ %{$version%} ✨ npm %{$npmversion%} %{$RED%}git 👤 %{$gitusername%} 📩 %{$gitusermail%}"
   fi
 }
 

@@ -1,0 +1,78 @@
+RED=$fg[red]
+YELLOW=$fg[yellow]
+RED=$fg[red]
+GREEN=$fg[green]
+WHITE=$fg[white]
+BLUE=$fg[blue]
+BLACK=$fg[black]
+RED_BOLD=$fg_bold[red]
+YELLOW_BOLD=$fg_bold[yellow]
+GREEN_BOLD=$fg_bold[green]
+WHITE_BOLD=$fg_bold[white]
+BLUE_BOLD=$fg_bold[blue]
+BLACK_BOLD=$fg_bold[white]
+RESET_COLOR=$reset_color
+
+# Format for git_prompt_status()
+ZSH_THEME_GIT_PROMPT_UNMERGED=" %{$RED%}unmerged"
+ZSH_THEME_GIT_PROMPT_DELETED=" %{$RED%}deleted"
+ZSH_THEME_GIT_PROMPT_RENAMED=" %{$YELLOW%}renamed"
+ZSH_THEME_GIT_PROMPT_MODIFIED=" %{$YELLOW%}modified"
+ZSH_THEME_GIT_PROMPT_ADDED=" %{$GREEN%}added"
+ZSH_THEME_GIT_PROMPT_UNTRACKED=" %{$WHITE%}untracked"
+
+setopt PROMPT_SUBST
+# ZSH Theme - Preview: https://gyazo.com/8becc8a7ed5ab54a0262a470555c3eed.png
+local return_code="%(?..%{$fg[red]%}%? ↵%{$reset_color%})"
+commandexists() {
+  command -v $1 > /dev/null 2>&1
+}
+
+
+package_version() {
+  if ([[ -f package.json ]] && commandexists npm) || ([[ -d .git ]] && commandexists git); then
+    if [[ -f package.json ]] && commandexists node; then
+      local version="$(command node --version)"
+      local npmversion="$(command npm --version)"
+      local nodeString="node ⬢%{$version%} npm ✨ %{$npmversion%}"
+	  fi
+    if [[ -d .git ]] && commandexists git status; then
+      local gitusername="$(command git config user.name)"
+      local gitusermail="$(command git config user.email)"
+      local gitString="%{$RED%}git 👥 %{$gitusername%} 📩 %{$gitusermail%}"
+	  fi
+    echo "%{$nodeString%} %{$gitString%} "
+  fi
+}
+
+if [[ $UID -eq 0 ]]; then
+    local user_host='%{$terminfo[bold]$fg[red]%}%n@%m %{$reset_color%}'
+    local user_symbol='#'
+else
+    local user_host='%{$GREEN_BOLD%}%n %{$BLACK_BOLD%}at %{$GREEN_BOLD%}%m %{$RESET_COLOR%}'
+    local user_symbol='$'
+fi
+
+local current_dir='%{$BLACK_BOLD%}in %{$BLUE_BOLD%}%~ %{$reset_color%}'
+local git_branch='$(git_prompt_info)'
+local rvm_ruby='$(ruby_prompt_info)'
+local venv_prompt='$(virtualenv_prompt_info)'
+local node_version='%{$GREEN%}$(package_version)%{$RESET_COLOR%}'
+
+ZSH_THEME_RVM_PROMPT_OPTIONS="i v g"
+
+PROMPT="╭─${user_host}${current_dir}${rvm_ruby}${git_branch}${venv_prompt}${node_version}
+╰─%B${user_symbol}%b "
+RPROMPT="%B${return_code}%b"
+
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[yellow]%}‹"
+ZSH_THEME_GIT_PROMPT_SUFFIX="› %{$reset_color%}"
+
+ZSH_THEME_RUBY_PROMPT_PREFIX="%{$fg[red]%}‹"
+ZSH_THEME_RUBY_PROMPT_SUFFIX="› %{$reset_color%}"
+
+ZSH_THEME_VIRTUAL_ENV_PROMPT_PREFIX="%{$fg[green]%}‹"
+ZSH_THEME_VIRTUAL_ENV_PROMPT_SUFFIX="› %{$reset_color%}"
+ZSH_THEME_VIRTUALENV_PREFIX=$ZSH_THEME_VIRTUAL_ENV_PROMPT_PREFIX
+ZSH_THEME_VIRTUALENV_SUFFIX=$ZSH_THEME_VIRTUAL_ENV_PROMPT_SUFFIX
+[[ -s $HOME/.nvm/nvm.sh ]] && . $HOME/.nvm/nvm.sh  # This loads NV
